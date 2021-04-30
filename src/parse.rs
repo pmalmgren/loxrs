@@ -49,26 +49,28 @@ pub enum TokenType {
     Eof,
 }
 
+#[derive(Clone)]
 pub enum Literal {
-    Number(f64),
+    Number(i64),
     Str(String),
-    Keyword,
-    Symbol(String, TokenType),
+    Keyword(String),
+    Symbol(String),
     Identifier(String),
 }
 
 impl fmt::Display for Literal {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Literal::Number(_n) => write!(f, "LiteralNumber"),
-            Literal::Str(_s) => write!(f, "LiteralString"),
-            Literal::Symbol(_s, _tt) => write!(f, "LiteralSymbol"),
-            Literal::Keyword => write!(f, "Keyword"),
-            Literal::Identifier(_s) => write!(f, "Identifier"),
+            Literal::Number(n) => write!(f, "{}", n),
+            Literal::Str(s) => write!(f, "{}", s),
+            Literal::Symbol(s) => write!(f, "{}", s),
+            Literal::Keyword(s) => write!(f, "{}", s),
+            Literal::Identifier(s) => write!(f, "{}", s),
         }
     }
 }
 
+#[derive(Clone)]
 pub struct Token {
     pub ttype: TokenType,
     pub lexeme: String,
@@ -88,21 +90,21 @@ impl Token {
 
     fn literal_from_s(ctx: &Context, lexeme: String) -> Self {
         let (ttype, literal) = match lexeme.as_str() {
-            "and" => (TokenType::And, Literal::Keyword),
-            "class" => (TokenType::Class, Literal::Keyword),
-            "else" => (TokenType::Else, Literal::Keyword),
-            "false" => (TokenType::False, Literal::Keyword),
-            "for" => (TokenType::For, Literal::Keyword),
-            "if" => (TokenType::If, Literal::Keyword),
-            "nil" => (TokenType::Nil, Literal::Keyword),
-            "or" => (TokenType::Or, Literal::Keyword),
-            "print" => (TokenType::Print, Literal::Keyword),
-            "return" => (TokenType::Return, Literal::Keyword),
-            "super" => (TokenType::Super, Literal::Keyword),
-            "this" => (TokenType::This, Literal::Keyword),
-            "true" => (TokenType::True, Literal::Keyword),
-            "var" => (TokenType::Var, Literal::Keyword),
-            "while" => (TokenType::While, Literal::Keyword),
+            "and" => (TokenType::And, Literal::Keyword(lexeme.clone())),
+            "class" => (TokenType::Class, Literal::Keyword(lexeme.clone())),
+            "else" => (TokenType::Else, Literal::Keyword(lexeme.clone())),
+            "false" => (TokenType::False, Literal::Keyword(lexeme.clone())),
+            "for" => (TokenType::For, Literal::Keyword(lexeme.clone())),
+            "if" => (TokenType::If, Literal::Keyword(lexeme.clone())),
+            "nil" => (TokenType::Nil, Literal::Keyword(lexeme.clone())),
+            "or" => (TokenType::Or, Literal::Keyword(lexeme.clone())),
+            "print" => (TokenType::Print, Literal::Keyword(lexeme.clone())),
+            "return" => (TokenType::Return, Literal::Keyword(lexeme.clone())),
+            "super" => (TokenType::Super, Literal::Keyword(lexeme.clone())),
+            "this" => (TokenType::This, Literal::Keyword(lexeme.clone())),
+            "true" => (TokenType::True, Literal::Keyword(lexeme.clone())),
+            "var" => (TokenType::Var, Literal::Keyword(lexeme.clone())),
+            "while" => (TokenType::While, Literal::Keyword(lexeme.clone())),
             _ => (TokenType::Identifier, Literal::Identifier(lexeme.clone())),
         };
 
@@ -136,7 +138,7 @@ fn build_token(ctx: &mut Context, ttype: TokenType) -> Token {
     Token::new(
         ttype.clone(),
         code.clone(),
-        Literal::Symbol(code, ttype),
+        Literal::Symbol(code),
         ctx.line,
     )
 }
@@ -311,7 +313,7 @@ fn scan_token(ctx: &mut Context) -> ScanResult {
                 char::is_ascii_digit(&cc)
             }) {
                 AdvanceResult::Terminated(s) => {
-                    let result = s.parse::<f64>();
+                    let result = s.parse::<i64>();
                     if let Err(_e) = result {
                         return ScanResult::Error(SyntaxError {
                             line: ctx.line,

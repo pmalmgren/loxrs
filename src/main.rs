@@ -4,7 +4,7 @@ use std::io::prelude::*;
 
 mod error;
 mod parse;
-mod scan;
+mod ast;
 
 fn get_line() -> String {
     print!("> ");
